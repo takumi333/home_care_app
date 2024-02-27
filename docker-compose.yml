@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    platform: linux/x86_64
+    image: mysql:latest
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
+    volumes:
+      - web_data:/app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    environment:
+      - TZ=Asia/Tokyo
+      - RAILS_ENV=development
+    
+volumes:
+  mysql_data:
+    driver: local # Define the driver and options under the volume name
+  web_data:
